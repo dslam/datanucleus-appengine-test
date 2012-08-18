@@ -21,13 +21,13 @@ import java.util.Map;
 
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.NucleusContext;
-import org.datanucleus.util.NucleusLogger;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 
 /**
  * StoreManager for extending AppEngine DataNucleus store to be testable.
+ * Creates a HRD local datastore for usage by the tests.
  */
 public class TestDatastoreManager extends DatastoreManager
 {
@@ -43,11 +43,12 @@ public class TestDatastoreManager extends DatastoreManager
     throws NoSuchFieldException, IllegalAccessException
     {
         super(clr, nucContext, props);
-        NucleusLogger.GENERAL.info(">> TestDatastoreManager.ctr storeManagerKey=" + storeManagerKey);
-        testHelper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig()).setEnvAppId("DNTest");
-        NucleusLogger.GENERAL.info(">> TestDatastoreManager.close calling setUp");
+
+        // Create High-Replication-Datastore simulation
+        LocalDatastoreServiceTestConfig config = new LocalDatastoreServiceTestConfig();
+        config.setDefaultHighRepJobPolicyUnappliedJobPercentage(50);
+        testHelper = new LocalServiceTestHelper(config).setEnvAppId("DNTest");
         testHelper.setUp();
-        NucleusLogger.GENERAL.info(">> TestDatastoreManager.ctr test environment initialised");
     }
 
     /* (non-Javadoc)
@@ -56,7 +57,6 @@ public class TestDatastoreManager extends DatastoreManager
     @Override
     public void close()
     {
-        NucleusLogger.GENERAL.info(">> TestDatastoreManager.close calling tearDown");
         testHelper.tearDown();
         super.close();
     }
