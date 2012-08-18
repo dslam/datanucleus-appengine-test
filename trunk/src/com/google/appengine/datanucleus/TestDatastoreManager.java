@@ -36,17 +36,18 @@ public class TestDatastoreManager extends DatastoreManager
     /**
      * Construct a DatastoreManager.
      * @param clr The ClassLoaderResolver
-     * @param nucContext The NucleusContext
+     * @param nucCtx The NucleusContext
      * @param props Properties to store on this StoreManager
      */
-    public TestDatastoreManager(ClassLoaderResolver clr, NucleusContext nucContext, Map<String, Object> props)
+    public TestDatastoreManager(ClassLoaderResolver clr, NucleusContext nucCtx, Map<String, Object> props)
     throws NoSuchFieldException, IllegalAccessException
     {
-        super(clr, nucContext, props);
+        super(clr, nucCtx, props);
 
         // Create High-Replication-Datastore simulation
         LocalDatastoreServiceTestConfig config = new LocalDatastoreServiceTestConfig();
-        config.setDefaultHighRepJobPolicyUnappliedJobPercentage(50);
+        config.setDefaultHighRepJobPolicyUnappliedJobPercentage(1); // Can't be <1 and still have multi-XG txns
+        config.setStoreDelayMs(0);
         testHelper = new LocalServiceTestHelper(config).setEnvAppId("DNTest");
         testHelper.setUp();
     }
